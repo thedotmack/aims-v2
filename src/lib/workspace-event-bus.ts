@@ -1,15 +1,32 @@
-/**
- * Workspace Event Bus
- *
- * Singleton EventEmitter for broadcasting file change events to SSE connections.
- * Will be implemented in Phase 4.
- */
+import { EventEmitter } from 'events';
 
-export interface WorkspaceEvent {
+export interface WorkspaceFileChangeEvent {
   file_path: string;
-  event_type: "change" | "add" | "unlink";
+  event_type: 'change' | 'add' | 'unlink';
   content_hash: string;
   timestamp: number;
 }
 
-// Placeholder — implementation in Phase 4
+// Singleton pattern — persists across route handler invocations in Node.js
+class WorkspaceEventBus {
+  private emitter = new EventEmitter();
+
+  constructor() {
+    this.emitter.setMaxListeners(1000);
+  }
+
+  on(agentId: string, handler: (event: WorkspaceFileChangeEvent) => void) {
+    this.emitter.on(agentId, handler);
+  }
+
+  off(agentId: string, handler: (event: WorkspaceFileChangeEvent) => void) {
+    this.emitter.off(agentId, handler);
+  }
+
+  emit(agentId: string, event: WorkspaceFileChangeEvent) {
+    this.emitter.emit(agentId, event);
+  }
+}
+
+// Module-level singleton
+export const workspaceEventBus = new WorkspaceEventBus();
