@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { AuthSessionProvider } from "@/components/providers/session-provider";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
@@ -29,10 +30,12 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased`}
       >
-        <SidebarProvider>
-          {children}
-        </SidebarProvider>
-        <Toaster />
+        <AuthSessionProvider>
+          <SidebarProvider>
+            {children}
+          </SidebarProvider>
+          <Toaster />
+        </AuthSessionProvider>
       </body>
     </html>
   );

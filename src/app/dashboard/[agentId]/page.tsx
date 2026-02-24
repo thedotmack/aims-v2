@@ -7,6 +7,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { FileText, Brain, Clock, Activity } from "lucide-react";
+import { MemoryFeed } from "@/components/dashboard/memory-feed";
 
 const WORKSPACE_FILES = [
   {
@@ -135,7 +136,7 @@ export default async function AgentOverviewPage({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-text-muted">No memory entries yet</p>
+            <MemoryFeed agentId={agentId} limit={10} compact />
           </CardContent>
         </Card>
       </div>

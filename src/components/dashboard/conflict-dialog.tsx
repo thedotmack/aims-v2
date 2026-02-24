@@ -1,42 +1,68 @@
-"use client";
+'use client';
 
-/**
- * ConflictDialog
- *
- * Modal dialog shown when a file save fails due to concurrent edits (409 conflict).
- * Displays a side-by-side diff using react-diff-viewer-continued and offers
- * "Keep mine", "Keep theirs", and "Cancel" actions.
- * Will be implemented in Phase 3.
- */
+import dynamic from 'next/dynamic';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 
-export function ConflictDialog({
-  isOpen,
-  onKeepMine,
-  onKeepTheirs,
-  onCancel,
-}: {
-  isOpen: boolean;
+const ReactDiffViewer = dynamic(
+  () => import('react-diff-viewer-continued'),
+  { ssr: false },
+);
+
+interface ConflictDialogProps {
+  open: boolean;
   yourContent: string;
   theirContent: string;
   onKeepMine: () => void;
   onKeepTheirs: () => void;
   onCancel: () => void;
-}) {
-  if (!isOpen) return null;
+}
 
+export function ConflictDialog({
+  open,
+  yourContent,
+  theirContent,
+  onKeepMine,
+  onKeepTheirs,
+  onCancel,
+}: ConflictDialogProps) {
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-background rounded-lg p-6 max-w-4xl w-full">
-        <h2 className="text-lg font-semibold">Conflict Detected</h2>
-        <p className="text-muted-foreground mt-2">
-          Conflict dialog placeholder — will show side-by-side diff
-        </p>
-        <div className="flex gap-2 mt-4">
-          <button onClick={onKeepMine}>Keep Mine</button>
-          <button onClick={onKeepTheirs}>Keep Theirs</button>
-          <button onClick={onCancel}>Cancel</button>
+    <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onCancel()}>
+      <DialogContent className="max-h-[80vh] max-w-4xl overflow-auto">
+        <DialogHeader>
+          <DialogTitle>Conflict Detected</DialogTitle>
+          <DialogDescription>
+            The agent modified this file while you were editing. Choose which
+            version to keep.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="my-4">
+          <ReactDiffViewer
+            oldValue={yourContent}
+            newValue={theirContent}
+            splitView={true}
+            leftTitle="Your Changes"
+            rightTitle="Agent's Changes"
+            useDarkTheme={true}
+          />
         </div>
-      </div>
-    </div>
+        <DialogFooter className="gap-2">
+          <Button variant="outline" onClick={onCancel}>
+            Cancel
+          </Button>
+          <Button variant="destructive" onClick={onKeepTheirs}>
+            Keep Theirs
+          </Button>
+          <Button onClick={onKeepMine}>Keep Mine</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
